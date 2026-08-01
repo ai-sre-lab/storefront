@@ -29,6 +29,8 @@ async def healthz() -> dict:
 @app.get("/items")
 async def items() -> dict:
     await asyncio.sleep(LOOKUP_MS / 1000.0)
+    if random.random() < 0.1:
+        log.warning("slow query detected: %dms on catalog_items", random.randint(700, 900))
     if random.random() < 0.3:
         log.warning("cache miss for shard %d, falling back to primary", random.randint(1, 8))
     return {"items": ["sku-1", "sku-2", "sku-3"]}
