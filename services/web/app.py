@@ -38,8 +38,12 @@ async def browse() -> dict:
 
 @app.post("/checkout")
 async def checkout() -> dict:
-    r = await client.post(f"{CHECKOUT_URL}/checkout", json={"cart": ["sku-1"]})
-    r.raise_for_status()
+    try:
+        r = await client.post(f"{CHECKOUT_URL}/checkout", json={"cart": ["sku-1"]})
+        r.raise_for_status()
+    except httpx.HTTPError as e:
+        log.error("checkout failed: %s", e)
+        raise HTTPException(status_code=503, detail="checkout unavailable") from e
     return r.json()
 
 
