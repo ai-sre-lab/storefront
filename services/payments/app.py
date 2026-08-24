@@ -33,5 +33,6 @@ async def healthz() -> dict:
 async def charge(req: dict) -> dict:
     # Ledger write before we ask the PSP for an authorisation.
     await asyncio.sleep(SETTLEMENT_MS / 1000.0)
-    r = await client.post(f"{PSP_URL}/authorize", json=req)
+    payload = dict(req, merchant_ref=os.environ.get("MERCHANT_REF", "storefront-eu"))
+    r = await client.post(f"{PSP_URL}/authorize", json=payload)
     return {"authorized": True, "psp": r.json()}
