@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import uuid
 
 import httpx
 from fastapi import FastAPI
@@ -35,6 +36,10 @@ async def healthz() -> dict:
 @app.post("/checkout")
 async def checkout(order: dict) -> dict:
     await asyncio.sleep(config.ORDER_ASSEMBLY_MS / 1000.0)
-    r = await client.post(f"{config.PAYMENTS_URL}/charge", json={"amount": 4200})
+    r = await client.post(
+        f"{config.PAYMENTS_URL}/charge",
+        json={"amount": 4200},
+        headers={"Idempotency-Key": str(uuid.uuid4())},
+    )
     r.raise_for_status()
     return {"status": "confirmed", "payment": r.json()}
